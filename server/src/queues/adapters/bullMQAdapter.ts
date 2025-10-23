@@ -74,32 +74,66 @@ export class BullMQAdapter implements IJobQueue {
 
   async createQueue(queueName: string): Promise<void> {
     if (!this.queues.has(queueName)) {
-      const queue = new Queue(queueName, {
-        connection: this.connection,
-        defaultJobOptions: {
-          attempts: 1, // No retries, same as pg-boss
-          removeOnComplete: true,
-          removeOnFail: false, // Keep failed jobs for debugging
-        },
-      });
+      let queue: Queue | undefined;
+      let queueEvents: QueueEvents | undefined;
 
-      this.queues.set(queueName, queue);
+      try {
+        // Create Queue
+        queue = new Queue(queueName, {
+          connection: this.connection,
+          defaultJobOptions: {
+            attempts: 1, // No retries, same as pg-boss
+            removeOnComplete: true,
+            removeOnFail: false, // Keep failed jobs for debugging
+          },
+        });
 
-      // Create QueueEvents for monitoring
-      const queueEvents = new QueueEvents(queueName, {
-        connection: this.connection,
-      });
+        this.queues.set(queueName, queue);
 
-      this.queueEvents.set(queueName, queueEvents);
+        // Create QueueEvents for monitoring
+        queueEvents = new QueueEvents(queueName, {
+          connection: this.connection,
+        });
 
-      // Log job events
-      queueEvents.on("completed", ({ jobId }) => {
-        console.info(`[BullMQ] Job ${jobId} completed in queue ${queueName}`);
-      });
+        this.queueEvents.set(queueName, queueEvents);
 
-      queueEvents.on("failed", ({ jobId, failedReason }) => {
-        console.error(`[BullMQ] Job ${jobId} failed in queue ${queueName}:`, failedReason);
-      });
+        // Log job events
+        queueEvents.on("completed", ({ jobId }) => {
+          console.info(`[BullMQ] Job ${jobId} completed in queue ${queueName}`);
+        });
+
+        queueEvents.on("failed", ({ jobId, failedReason }) => {
+          console.error(`[BullMQ] Job ${jobId} failed in queue ${queueName}:`, failedReason);
+        });
+      } catch (error) {
+        console.error(`[BullMQ] Failed to create queue ${queueName}:`, error);
+
+        // Clean up any partially created resources
+        const cleanupPromises: Promise<void>[] = [];
+
+        if (queueEvents) {
+          this.queueEvents.delete(queueName);
+          cleanupPromises.push(
+            queueEvents.close().catch(closeError => {
+              console.error(`[BullMQ] Failed to close queue events during cleanup for ${queueName}:`, closeError);
+            })
+          );
+        }
+
+        if (queue) {
+          this.queues.delete(queueName);
+          cleanupPromises.push(
+            queue.close().catch(closeError => {
+              console.error(`[BullMQ] Failed to close queue during cleanup for ${queueName}:`, closeError);
+            })
+          );
+        }
+
+        // Wait for cleanup to complete before rethrowing
+        await Promise.all(cleanupPromises);
+
+        throw error;
+      }
     }
   }
 
