@@ -160,33 +160,42 @@ export class BullMQAdapter implements IJobQueue {
     config: JobConfig,
     handler: (jobs: JobData<T>[]) => Promise<void | JobResult>
   ): Promise<void> {
-    const worker = new Worker(
-      queueName,
-      async (job: Job<T>) => {
-        const normalizedJob: JobData<T> = {
-          id: job.id!,
-          data: job.data,
-        };
+    try {
+      const worker = new Worker(
+        queueName,
+        async (job: Job<T>) => {
+          const normalizedJob: JobData<T> = {
+            id: job.id!,
+            data: job.data,
+          };
 
-        // BullMQ processes one job at a time per worker
-        // We wrap it in an array to match the interface
-        await handler([normalizedJob]);
-      },
-      {
-        connection: this.connection,
-        concurrency: config.concurrency ?? config.batchSize ?? 1,
-        limiter: config.limiter,
-      }
-    );
+          // BullMQ processes one job at a time per worker
+          // We wrap it in an array to match the interface
+          await handler([normalizedJob]);
+        },
+        {
+          connection: this.connection,
+          concurrency: config.concurrency ?? config.batchSize ?? 1,
+          limiter: config.limiter,
+        }
+      );
 
-    worker.on("error", error => {
-      console.error(`[BullMQ] Worker error in queue ${queueName}:`, error);
-    });
+      worker.on("error", error => {
+        console.error(`[BullMQ] Worker error in queue ${queueName}:`, error);
+      });
 
-    worker.on("failed", (job, error) => {
-      console.error(`[BullMQ] Job ${job?.id} failed in queue ${queueName}:`, error);
-    });
+      worker.on("failed", (job, error) => {
+        console.error(`[BullMQ] Job ${job?.id} failed in queue ${queueName}:`, error);
+      });
 
-    this.workers.set(queueName, worker);
+      this.workers.set(queueName, worker);
+    } catch (error) {
+      console.error(
+        `[BullMQ] Failed to create worker for queue ${queueName} with config:`,
+        { concurrency: config.concurrency ?? config.batchSize ?? 1, limiter: config.limiter },
+        error
+      );
+      throw error;
+    }
   }
 }
