@@ -89,7 +89,7 @@ export async function createCsvParseWorker(jobQueue: IJobQueue) {
       const quotaTracker = await ImportQuotaTracker.create(organization);
 
       const chunkSize = 5000;
-      const PROCESSING_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes max
+      const INACTIVITY_TIMEOUT_MS = 90 * 1000; // 90 seconds of inactivity
 
       let chunk: UmamiEvent[] = [];
       let totalSkippedQuota = 0;
@@ -108,12 +108,20 @@ export async function createCsvParseWorker(jobQueue: IJobQueue) {
       await updateImportStatus(importId, "processing");
       logger.info({ importId, platform, organization }, "Started processing CSV import");
 
-      // Set timeout to prevent indefinite processing
-      processingTimeout = setTimeout(() => {
-        if (stream) {
-          stream.destroy(new Error("Import processing timeout exceeded"));
+      // Helper to reset inactivity timeout - resets whenever progress is made
+      const resetTimeout = () => {
+        if (processingTimeout) {
+          clearTimeout(processingTimeout);
         }
-      }, PROCESSING_TIMEOUT_MS);
+        processingTimeout = setTimeout(() => {
+          if (stream) {
+            stream.destroy(new Error("Import processing inactivity timeout exceeded"));
+          }
+        }, INACTIVITY_TIMEOUT_MS);
+      };
+
+      // Set initial timeout
+      resetTimeout();
 
       const isDateInRange = createDateRangeFilter(startDate, endDate);
 
@@ -147,6 +155,8 @@ export async function createCsvParseWorker(jobQueue: IJobQueue) {
             allChunksSent: false,
           });
           chunk = [];
+          // Reset timeout after successful chunk send
+          resetTimeout();
         }
       }
 
@@ -159,6 +169,8 @@ export async function createCsvParseWorker(jobQueue: IJobQueue) {
           chunk,
           allChunksSent: false,
         });
+        // Reset timeout after final chunk send
+        resetTimeout();
       }
 
       // Check if some events couldn't be imported due to quotas
