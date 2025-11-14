@@ -1,6 +1,7 @@
 "use client";
-import { nivoTheme } from "@/lib/nivo";
+import { getNivoTheme } from "@/lib/nivo";
 import { useStore } from "@/lib/store";
+import { useTheme } from "next-themes";
 import { ResponsiveLine } from "@nivo/line";
 import { DateTime } from "luxon";
 import { GetOverviewBucketedResponse } from "../../../../../api/analytics/useGetOverviewBucketed";
@@ -43,6 +44,8 @@ export function PreviousChart({
   max: number;
 }) {
   const { previousTime: time, selectedStat, bucket } = useStore();
+  const { theme } = useTheme();
+  const nivoTheme = getNivoTheme(theme === "dark");
 
   const size = (data?.data.length ?? 0 / 2) + 1;
   const formattedData = data?.data
@@ -125,7 +128,7 @@ export function PreviousChart({
       animate={false}
       // motionConfig="stiff"
       enableSlices={"x"}
-      colors={["hsl(var(--neutral-700))"]}
+      colors={[theme === "dark" ? "hsl(var(--neutral-700))" : "hsl(var(--neutral-100))"]}
     />
   );
 }

@@ -169,8 +169,9 @@ export default function Layout({ children }: { children: ReactNode }) {
       <body className={`flex flex-col min-h-screen ${inter.variable} font-sans`}>
         <RootProvider
           theme={{
-            defaultTheme: "dark",
             enabled: true,
+            enableSystem: true,
+            defaultTheme: "dark",
           }}
         >
           {children}

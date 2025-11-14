@@ -2,10 +2,11 @@
 
 import { GetErrorBucketedResponse } from "@/api/analytics/errors/useGetErrorBucketed";
 import { hour12, userLocale } from "@/lib/dateTimeUtils";
-import { nivoTheme } from "@/lib/nivo";
+import { getNivoTheme } from "@/lib/nivo";
 import { ResponsiveBar } from "@nivo/bar";
 import { DateTime } from "luxon";
 import { useMemo } from "react";
+import { useTheme } from "next-themes";
 
 interface ErrorSparklineChartProps {
   data: GetErrorBucketedResponse | undefined;
@@ -15,6 +16,9 @@ interface ErrorSparklineChartProps {
 }
 
 export function ErrorSparklineChart({ data, isHovering, errorMessage, isLoading }: ErrorSparklineChartProps) {
+  const { theme } = useTheme();
+  const nivoTheme = getNivoTheme(theme === "dark");
+
   const chartData = useMemo(() => {
     if (!data || data.length === 0) {
       return [];
@@ -79,10 +83,12 @@ export function ErrorSparklineChart({ data, isHovering, errorMessage, isLoading 
 
         return (
           <div
-            className="bg-neutral-850 p-2 rounded-md text-xs border border-neutral-750 shadow-lg"
+            className="bg-neutral-150 dark:bg-neutral-850 p-2 rounded-md text-xs border border-neutral-300 dark:border-neutral-750 shadow-lg"
             style={{ zIndex: 9999, position: "relative" }}
           >
-            <div className="font-semibold mb-1 text-neutral-200">{formatDateTime(currentTime)}</div>
+            <div className="font-semibold mb-1 text-neutral-700 dark:text-neutral-200">
+              {formatDateTime(currentTime)}
+            </div>
             <div className="flex justify-between items-center">
               <span className="font-medium text-red-400">
                 {currentY.toLocaleString()} {currentY === 1 ? "error" : "errors"}
