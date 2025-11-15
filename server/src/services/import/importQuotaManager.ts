@@ -10,36 +10,22 @@ interface ActiveImport {
   startedAt: number;
 }
 
-/**
- * Singleton service that manages quota trackers and rate limiting for imports
- * Caches quota trackers per organization to avoid expensive ClickHouse queries
- */
 class ImportQuotaManager {
-  // Cache of quota trackers by organizationId
   private trackers: Map<string, CachedTracker> = new Map();
-
-  // Active imports tracking for rate limiting
   private activeImports: Map<string, Set<ActiveImport>> = new Map();
 
-  // Configuration
-  private readonly CONCURRENT_IMPORT_LIMIT = 1; // Max concurrent imports per organization
+  private readonly CONCURRENT_IMPORT_LIMIT = 1;
   private readonly TRACKER_TTL_MS = 30 * 60 * 1000; // 30 minutes
   private readonly IMPORT_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
 
-  /**
-   * Get a quota tracker for the given organization
-   * Returns cached tracker if available, otherwise creates a new one
-   */
   async getTracker(organizationId: string): Promise<ImportQuotaTracker> {
     const now = Date.now();
     const cached = this.trackers.get(organizationId);
 
-    // Return cached tracker if it's still valid
     if (cached && now - cached.lastAccessed < this.TRACKER_TTL_MS) {
       cached.lastAccessed = now;
       return cached.tracker;
     }
-
     // Create new tracker
     const tracker = await ImportQuotaTracker.create(organizationId);
     this.trackers.set(organizationId, {
@@ -50,16 +36,11 @@ class ImportQuotaManager {
     return tracker;
   }
 
-  /**
-   * Atomically check and register a new import
-   * Returns true if import was registered, false if limit reached
-   */
   startImport(organizationId: string): boolean {
     if (!IS_CLOUD) {
-      return true; // No limits for self-hosted
+      return true;
     }
 
-    // Clean up abandoned imports first
     this.cleanupAbandonedImports(organizationId);
 
     let activeSet = this.activeImports.get(organizationId);
@@ -68,12 +49,10 @@ class ImportQuotaManager {
       this.activeImports.set(organizationId, activeSet);
     }
 
-    // Check limit
     if (activeSet.size >= this.CONCURRENT_IMPORT_LIMIT) {
-      return false; // At capacity
+      return false;
     }
 
-    // Register the import (we only track count and timestamps)
     activeSet.add({
       startedAt: Date.now(),
     });
@@ -81,10 +60,6 @@ class ImportQuotaManager {
     return true;
   }
 
-  /**
-   * Mark an import as completed (remove from active tracking)
-   * Since we only allow 1 concurrent import, we can just clear the set
-   */
   completeImport(organizationId: string): void {
     const activeSet = this.activeImports.get(organizationId);
     if (!activeSet) {
@@ -97,15 +72,11 @@ class ImportQuotaManager {
       activeSet.delete(firstImport);
     }
 
-    // Clean up empty sets
     if (activeSet.size === 0) {
       this.activeImports.delete(organizationId);
     }
   }
 
-  /**
-   * Remove abandoned imports (no activity for > IMPORT_TIMEOUT_MS)
-   */
   private cleanupAbandonedImports(organizationId: string): void {
     const activeSet = this.activeImports.get(organizationId);
     if (!activeSet) {
@@ -125,16 +96,11 @@ class ImportQuotaManager {
       activeSet.delete(importToRemove);
     }
 
-    // Clean up empty sets
     if (activeSet.size === 0) {
       this.activeImports.delete(organizationId);
     }
   }
 
-  /**
-   * Periodic cleanup of stale trackers and abandoned imports
-   * Called automatically by setInterval
-   */
   cleanup(): void {
     const now = Date.now();
 
@@ -150,30 +116,10 @@ class ImportQuotaManager {
       this.cleanupAbandonedImports(orgId);
     }
   }
-
-  /**
-   * Get debug information about current state
-   */
-  getDebugInfo(): {
-    cachedTrackers: number;
-    activeImports: Record<string, number>;
-  } {
-    const activeImports: Record<string, number> = {};
-    for (const [orgId, activeSet] of this.activeImports.entries()) {
-      activeImports[orgId] = activeSet.size;
-    }
-
-    return {
-      cachedTrackers: this.trackers.size,
-      activeImports,
-    };
-  }
 }
 
-// Export singleton instance
 export const importQuotaManager = new ImportQuotaManager();
 
-// Set up automatic cleanup every 15 minutes
 if (IS_CLOUD) {
   setInterval(
     () => {
