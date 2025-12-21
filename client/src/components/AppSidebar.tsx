@@ -10,10 +10,27 @@ import { IS_CLOUD } from "../lib/const";
 import { cn } from "../lib/utils";
 import { RybbitLogo } from "./RybbitLogo";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { authClient } from "../lib/auth";
+
+function AdminLink({ isExpanded }: { isExpanded: boolean }) {
+  const pathname = usePathname();
+  const { isAdmin } = useAdminPermission();
+  if (!IS_CLOUD || !isAdmin) return null;
+
+  return (
+    <SidebarLink
+      href="/admin"
+      icon={<ShieldUser className="w-5 h-5" />}
+      label="Admin"
+      active={pathname.startsWith("/admin")}
+      expanded={isExpanded}
+    />
+  );
+}
 
 function AppSidebarContent() {
   const pathname = usePathname();
-  const { isAdmin } = useAdminPermission();
+  const { data: session } = authClient.useSession();
   const [isExpanded, setIsExpanded] = useState(false);
   const embed = useEmbedablePage();
 
@@ -46,15 +63,7 @@ function AppSidebarContent() {
           active={pathname.startsWith("/uptime")}
           expanded={isExpanded}
         /> */}
-        {isAdmin && IS_CLOUD && (
-          <SidebarLink
-            href="/admin"
-            icon={<ShieldUser className="w-5 h-5" />}
-            label="Admin"
-            active={pathname.startsWith("/admin")}
-            expanded={isExpanded}
-          />
-        )}
+        {session?.user.role === "admin" && <AdminLink isExpanded={isExpanded} />}
       </div>
       <div className="flex flex-col items-start gap-2 w-full">
         <div className={cn("flex items-center w-full px-0.5", isExpanded ? "justify-start" : "hidden")}>

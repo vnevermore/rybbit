@@ -250,6 +250,7 @@ const ANALYTICS_ROUTES = [
   "/api/error-events/",
   "/api/session-replay/",
   "/api/gsc/data/",
+  "/api/gsc/status/",
 ];
 
 server.addHook("onRequest", async (request, reply) => {

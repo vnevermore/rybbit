@@ -1,11 +1,17 @@
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useWhiteLabel } from "../hooks/useIsWhiteLabel";
 import { Skeleton } from "./ui/skeleton";
 
 export function RybbitLogo({ width = 32, height = 32 }: { width?: number; height?: number }) {
   const { whiteLabelImage, isPending } = useWhiteLabel();
+  const [mounted, setMounted] = useState(false);
 
-  if (isPending) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || isPending) {
     return <Skeleton style={{ width, height }} />;
   }
 
@@ -15,7 +21,7 @@ export function RybbitLogo({ width = 32, height = 32 }: { width?: number; height
 
   return (
     <Image
-      src={whiteLabelImage || "/rybbit.svg"}
+      src="/rybbit.svg"
       alt="Rybbit"
       width={width}
       height={height}
@@ -26,7 +32,13 @@ export function RybbitLogo({ width = 32, height = 32 }: { width?: number; height
 
 export function RybbitTextLogo({ width = 150, height = 34 }: { width?: number; height?: number }) {
   const { whiteLabelImage, isPending } = useWhiteLabel();
-  if (isPending) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || isPending) {
     return <Skeleton style={{ width, height }} />;
   }
 
@@ -36,7 +48,7 @@ export function RybbitTextLogo({ width = 150, height = 34 }: { width?: number; h
 
   return (
     <Image
-      src={whiteLabelImage || "/rybbit-text.svg"}
+      src="/rybbit-text.svg"
       alt="Rybbit"
       width={width}
       height={height}
