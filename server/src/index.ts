@@ -277,7 +277,6 @@ server.delete("/api/session-replay/:sessionId/:siteId", authSite, deleteSessionR
 
 // Sites
 server.get("/api/sites/:siteId", publicSite, getSite);
-server.post("/api/sites/:organizationId", orgAdminParams, addSite);
 server.put("/api/sites/:siteId/config", adminSite, updateSiteConfig);
 server.delete("/api/sites/:siteId", adminSite, deleteSite);
 server.get("/api/sites/:siteId/private-link-config", adminSite, getSitePrivateLinkConfig);
@@ -294,6 +293,7 @@ server.delete("/api/sites/:siteId/imports/:importId", adminSite, deleteSiteImpor
 
 // Organizations
 server.get("/api/organizations/:organizationId/sites", orgMember, getSitesFromOrg);
+server.post("/api/organizations/:organizationId/sites", orgAdminParams, addSite);
 server.get("/api/organizations/:organizationId/members", orgMember, listOrganizationMembers);
 server.post("/api/organizations/:organizationId/members", orgMember, addUserToOrganization);
 

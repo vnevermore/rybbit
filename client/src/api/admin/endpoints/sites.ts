@@ -75,7 +75,7 @@ export function addSite(
     blockBots?: boolean;
   }
 ) {
-  return authedFetch<{ siteId: number }>(`/sites/${organizationId}`, undefined, {
+  return authedFetch<{ siteId: number }>(`/organizations/${organizationId}/sites`, undefined, {
     method: "POST",
     data: {
       domain,

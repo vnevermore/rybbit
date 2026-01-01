@@ -362,21 +362,6 @@ export const endpointCategories: EndpointCategory[] = [
     name: "Sites",
     endpoints: [
       {
-        method: "POST",
-        path: "/sites/:orgId",
-        name: "Create Site",
-        description: "Creates a new site in an organization. Requires admin/owner role.",
-        hasCommonParams: false,
-        pathParams: ["orgId"],
-        hasRequestBody: true,
-        requestBodyExample: {
-          domain: "example.com",
-          name: "My Website",
-          public: false,
-          blockBots: true,
-        },
-      },
-      {
         method: "GET",
         path: "/sites/:site",
         name: "Get Site",
@@ -433,6 +418,55 @@ export const endpointCategories: EndpointCategory[] = [
         hasRequestBody: true,
         requestBodyExample: {
           action: "generate_private_link_key",
+        },
+      },
+    ],
+  },
+  {
+    name: "Organizations",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/organizations/:organizationId/sites",
+        name: "Get Organization Sites",
+        description: "Returns all sites within an organization with session counts and subscription info",
+        hasCommonParams: false,
+        pathParams: ["organizationId"],
+      },
+      {
+        method: "POST",
+        path: "/organizations/:organizationId/sites",
+        name: "Create Site",
+        description: "Creates a new site in an organization. Requires admin/owner role.",
+        hasCommonParams: false,
+        pathParams: ["organizationId"],
+        hasRequestBody: true,
+        requestBodyExample: {
+          domain: "example.com",
+          name: "My Website",
+          public: false,
+          blockBots: true,
+        },
+      },
+      {
+        method: "GET",
+        path: "/organizations/:organizationId/members",
+        name: "Get Organization Members",
+        description: "Returns all members of an organization with user details",
+        hasCommonParams: false,
+        pathParams: ["organizationId"],
+      },
+      {
+        method: "POST",
+        path: "/organizations/:organizationId/members",
+        name: "Add Organization Member",
+        description: "Adds a user to an organization with a specified role",
+        hasCommonParams: false,
+        pathParams: ["organizationId"],
+        hasRequestBody: true,
+        requestBodyExample: {
+          email: "user@example.com",
+          role: "member",
         },
       },
     ],
@@ -527,11 +561,18 @@ export const parameterMetadata: Record<
   userId: { label: "User ID", type: "text", placeholder: "User ID" },
   stepNumber: { label: "Step Number", type: "number", placeholder: "Step number (1-indexed)" },
   siteId: { label: "Site ID", type: "number", placeholder: "Site ID" },
+  organizationId: { label: "Organization ID", type: "text", placeholder: "org_abc123" },
   // Sites-specific params
   action: {
     label: "Action",
     type: "select",
     options: ["generate_private_link_key", "revoke_private_link_key"],
+  },
+  // Organizations-specific params
+  role: {
+    label: "Role",
+    type: "select",
+    options: ["admin", "member", "owner"],
   },
 };
 

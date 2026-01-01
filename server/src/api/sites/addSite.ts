@@ -6,7 +6,7 @@ import { sites } from "../../db/postgres/schema.js";
 export async function addSite(
   request: FastifyRequest<{
     Params: {
-      orgId: string;
+      organizationId: string;
     };
     Body: {
       domain: string;
@@ -18,7 +18,7 @@ export async function addSite(
   }>,
   reply: FastifyReply
 ) {
-  const { orgId: organizationId } = request.params;
+  const { organizationId } = request.params;
   const { domain, name, public: isPublic, saltUserIds, blockBots } = request.body;
 
   // Validate domain format using regex
