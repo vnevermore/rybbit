@@ -76,7 +76,11 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <Script src="https://demo.rybbit.com/api/script.js" data-site-id="21" />
-      <Script src="https://demo.rybbit.com/api/script.js?ns=demo" data-site-id="13b023d1a7895" data-namespace="rybbit_demo" />
+      <Script
+        src="https://demo.rybbit.com/api/script.js?ns=demo"
+        data-site-id="3b023d1a7895"
+        data-namespace="rybbit_demo"
+      />
       <body className={`flex flex-col min-h-screen ${inter.variable} font-sans`}>
         <RootProvider
           theme={{
