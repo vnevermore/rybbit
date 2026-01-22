@@ -20,7 +20,7 @@ export default function JourneysPage() {
   useSetPageTitle("Rybbit · Journeys");
 
   const [steps, setSteps] = useState<number>(4);
-  const [maxJourneys, setMaxJourneys] = useState<number>(70);
+  const [maxJourneys, setMaxJourneys] = useState<number>(50);
   const [stepFilters, setStepFilters] = useState<Record<number, string>>({});
 
   const { data: siteMetadata } = useGetSite();
