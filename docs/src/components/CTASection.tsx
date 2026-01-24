@@ -22,7 +22,7 @@ export function CTASection({
 }: CTASectionProps) {
   return (
     <section className="py-12 md:py-20 w-full px-4">
-      <div className="max-w-[1300px] mx-auto">
+      <div className="max-w-[1200px] mx-auto">
         <div className="relative overflow-hidden rounded-3xl bg-neutral-950 p-10 md:p-16 lg:p-20">
           {/* Noise texture overlay */}
           <svg

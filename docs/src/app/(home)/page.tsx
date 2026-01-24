@@ -1,6 +1,7 @@
 import { CTASection } from "@/components/CTASection";
 import { GitHubStarButton } from "@/components/GitHubStarButton";
 import { Integrations } from "@/components/Integration";
+import { Marquee } from "@/components/magicui/marquee";
 import { SectionBadge } from "@/components/SectionBadge";
 import { SpinningGlobe } from "@/components/SpinningGlobe";
 import { TrackedButton } from "@/components/TrackedButton";
@@ -216,7 +217,7 @@ export default function HomePage() {
 
         {/* Logo Section */}
         <section className="py-12 md:py-16 w-full">
-          <div className="max-w-[1300px] mx-auto px-4">
+          <div className="max-w-[1200px] mx-auto px-4">
             <div className="text-center mb-10 md:mb-12">
               <p className="text-neutral-500 dark:text-neutral-400 text-sm uppercase tracking-wider font-medium">
                 Trusted by 4,000+ organizations worldwide
@@ -312,7 +313,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-        <section className="py-14 md:py-20 w-full max-w-[1300px] px-4">
+        <section className="py-14 md:py-20 w-full max-w-[1200px] px-4">
           {/* <div className="bg-neutral-900/30 backdrop-blur-sm border border-neutral-800/50 rounded-2xl p-4 md:p-8"> */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
             {features.map(feature => {
@@ -331,7 +332,7 @@ export default function HomePage() {
           {/* </div> */}
         </section>
 
-        <section className="py-14 md:py-20 w-full max-w-[1300px] px-4">
+        <section className="py-14 md:py-20 w-full max-w-[1200px] px-4">
           <div className="text-center mb-10 md:mb-16">
             <SectionBadge className="mb-4"> Analytics Reimagined</SectionBadge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Features</h2>
@@ -347,8 +348,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Real-Time Globe Section */}
-        <section className="py-14 md:py-20 w-full max-w-[1300px]">
+        {/* <section className="py-14 md:py-20 w-full max-w-[1200px]">
           <div className="text-center mb-10 md:mb-16 px-4">
             <SectionBadge className="mb-4">Real-Time Insights</SectionBadge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight">See Your Users Around the World</h2>
@@ -360,12 +360,12 @@ export default function HomePage() {
           <div className="relative h-[420px] md:h-[700px] max-w-[100vw] mx-auto rounded-2xl">
             <SpinningGlobe />
           </div>
-        </section>
+        </section> */}
 
         <Integrations />
         {/* Testimonial Section */}
-        <section className="py-10 md:py-16 w-full">
-          <div className="max-w-[1300px] mx-auto px-4">
+        <section className="py-10 md:py-16 w-full overflow-hidden">
+          <div className="max-w-[1200px] mx-auto px-4">
             <div className="text-center mb-10 md:mb-16">
               <SectionBadge className="mb-4">User Testimonials</SectionBadge>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight">People love Rybbit</h2>
@@ -373,35 +373,49 @@ export default function HomePage() {
                 See what others think about Rybbit Analytics
               </p>
             </div>
-            <div className="columns-1 md:columns-3 lg:columns-4 gap-4 space-y-4">
-              <TweetCard id="1991296442611184125" className="break-inside-avoid mb-4" />
-              <TweetCard id="1921928423284629758" className="break-inside-avoid mb-4" />
-              <TweetCard id="1920899082253434950" className="break-inside-avoid mb-4" />
-              <TweetCard id="2000974573005889706" className="break-inside-avoid mb-4" />
-              <TweetCard id="2000788904778326334" className="break-inside-avoid mb-4" />
+            <div className="relative bg-neutral-100/50 dark:bg-neutral-800/20 backdrop-blur-sm border border-neutral-300/50 dark:border-neutral-800/50 rounded-3xl overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[600px] md:h-[700px] p-4">
+                {/* Column 1 */}
+                <Marquee vertical pauseOnHover className="[--duration:60s]" repeat={2}>
+                  <TweetCard id="1991296442611184125" />
+                  <TweetCard id="1921928423284629758" />
+                  <TweetCard id="2000974573005889706" />
+                  <TweetCard id="1927817460993884321" />
+                  <TweetCard id="1977471983278535071" />
+                  <TweetCard id="1958789741635141673" />
+                </Marquee>
 
-              <TweetCard id="2015102995789381815" className="break-inside-avoid mb-4" />
-              <TweetCard id="2009548405488615871" className="break-inside-avoid mb-4" />
-              <TweetCard id="1927817460993884321" className="break-inside-avoid mb-4" />
-              <TweetCard id="1982378431166963982" className="break-inside-avoid mb-4" />
+                {/* Column 2 */}
+                <Marquee vertical pauseOnHover reverse className="[--duration:45s]" repeat={2}>
+                  <TweetCard id="1920899082253434950" />
+                  <TweetCard id="2000788904778326334" />
+                  <TweetCard id="2015102995789381815" />
+                  <TweetCard id="1982378431166963982" />
+                  <TweetCard id="1980082738934993142" />
+                  <TweetCard id="1976495558480232672" />
+                </Marquee>
 
-              <TweetCard id="1920470706761929048" className="break-inside-avoid mb-4" />
-              <TweetCard id="1981795864118243355" className="break-inside-avoid mb-4" />
-              <TweetCard id="1980082738934993142" className="break-inside-avoid mb-4" />
-              <TweetCard id="1979830490006974510" className="break-inside-avoid mb-4" />
+                {/* Column 3 */}
+                <Marquee vertical pauseOnHover className="[--duration:60s]" repeat={2}>
+                  <TweetCard id="2009548405488615871" />
+                  <TweetCard id="1920470706761929048" />
+                  <TweetCard id="1981795864118243355" />
+                  <TweetCard id="1979830490006974510" />
+                  <TweetCard id="1970265809122705759" />
+                </Marquee>
+              </div>
 
-              <TweetCard id="1977471983278535071" className="break-inside-avoid mb-4" />
-              <TweetCard id="1976495558480232672" className="break-inside-avoid mb-4" />
-              <TweetCard id="1970265809122705759" className="break-inside-avoid mb-4" />
-              <TweetCard id="1958789741635141673" className="break-inside-avoid mb-4" />
+              {/* Gradient overlays */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-neutral-100/90 dark:from-neutral-900/90 to-transparent"></div>
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-100/90 dark:from-neutral-900/90 to-transparent"></div>
             </div>
           </div>
         </section>
 
 
         {/* FAQ Section */}
-        <section className="py-16 md:py-24 w-full">
-          <div className="max-w-[1300px] mx-auto px-4">
+        <section className="py-10 md:py-16 w-full">
+          <div className="max-w-[1200px] mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-8 md:gap-16">
               <div className="md:sticky md:top-24 md:self-start">
                 <h2 className="text-3xl md:text-4xl font-bold">Frequently Asked Questions</h2>
