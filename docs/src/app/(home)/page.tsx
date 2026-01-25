@@ -469,7 +469,7 @@ export default function HomePage() {
                 </Marquee>
 
                 {/* Column 2 - hidden on mobile */}
-                <Marquee vertical pauseOnHover reverse className="hidden md:flex [--duration:45s]" repeat={2}>
+                <Marquee vertical pauseOnHover reverse className="hidden md:flex [--duration:60s]" repeat={2}>
                   <TweetCard id="1920899082253434950" />
                   <TweetCard id="2000788904778326334" />
                   <TweetCard id="2015102995789381815" />
