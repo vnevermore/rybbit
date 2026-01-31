@@ -4,6 +4,8 @@ services:
     image: caddy:2.10.0
     container_name: caddy
     restart: unless-stopped
+    networks:
+      - rybbit
     ports:
       - "80:80"
       - "443:443"
@@ -23,6 +25,8 @@ services:
   clickhouse:
     container_name: clickhouse
     image: clickhouse/clickhouse-server:25.4.2
+    networks:
+      - rybbit
     volumes:
       - clickhouse-data:/var/lib/clickhouse
     configs:
@@ -51,6 +55,8 @@ services:
   postgres:
     image: postgres:17.4
     container_name: postgres
+    networks:
+      - rybbit
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-frog}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-frog}
@@ -70,6 +76,8 @@ services:
   backend:
     image: ghcr.io/rybbit-io/rybbit-backend:${IMAGE_TAG:-latest}
     container_name: backend
+    networks:
+      - rybbit
     build:
       context: .
       dockerfile: server/Dockerfile
@@ -106,6 +114,8 @@ services:
   client:
     image: ghcr.io/rybbit-io/rybbit-client:${IMAGE_TAG:-latest}
     container_name: client
+    networks:
+      - rybbit
     build:
       context: .
       dockerfile: client/Dockerfile
@@ -121,6 +131,10 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+networks:
+  rybbit:
+    driver: bridge
 
 volumes:
   clickhouse-data:
