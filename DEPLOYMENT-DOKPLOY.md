@@ -25,3 +25,5 @@ Quick reference for deploying this repo on [Dokploy](https://dokploy.com) with G
    To use the built-in Caddy reverse proxy, in **Advanced** append `--profile with-webserver` to the compose command (or equivalent in your Dokploy UI).
 
 Auto-deploy on push is on by default for the selected branch. Webhook URL is in **Deployments** if you need it.
+
+**If you get "network dokploy-network not found"**: create it on the server with `docker network create dokploy-network` (standard Dokploy installs create it automatically).
