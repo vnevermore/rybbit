@@ -1,0 +1,95 @@
+---
+title: Deploy with Dokploy (GitHub)
+description: Deploy Rybbit on Dokploy using GitHub and Docker Compose
+---
+
+This guide walks you through deploying Rybbit on [Dokploy](https://dokploy.com) with your GitHub repository. Pushes to your chosen branch can trigger automatic redeploys.
+
+## Prerequisites
+
+- A server with [Dokploy installed](https://docs.dokploy.com/docs/core/installation)
+- Your Rybbit repository on GitHub (your fork or the official repo)
+- A domain (optional; you can use Dokploy’s URL or add a custom domain later)
+
+## 1. Connect GitHub to Dokploy
+
+1. In Dokploy, go to **Git** and select **GitHub** as the source.
+2. Click **Create Github App**.
+3. Set a unique **Github App Name** (e.g. `Dokploy-Rybbit`).
+4. Click **Create Github App** again. You’ll be redirected back to the Git section.
+5. Click **Install**.
+6. Choose **All repositories** or only the repo that contains Rybbit.
+7. Click **Install & Authorize**. You’ll return to Dokploy’s Git section.
+
+After this, Dokploy can clone your repo and, by default, will auto-deploy on every push to the branch you select per application.
+
+## 2. Create a Docker Compose service
+
+1. In Dokploy, go to **Docker Compose** and create a new Compose service.
+2. In **General**:
+   - **Name**: e.g. `rybbit`
+   - **Source**: **GitHub**
+   - **Repository**: select your Rybbit repo (e.g. `your-username/rybbit` or `rybbit-io/rybbit`)
+   - **Branch**: e.g. `master` or `main`
+   - **Docker Compose path**: `docker-compose.yml` (root of the repo)
+3. Leave **Docker Compose** mode (not Stack) so that `build` works for backend and client.
+
+## 3. Configure environment variables
+
+In the **Environment** tab for this Compose service, add the variables your stack expects. Dokploy will write these into a `.env` file next to the Compose file. Use the same names as in [.env.example](https://github.com/rybbit-io/rybbit/blob/master/.env.example). Example:
+
+```env
+DOMAIN_NAME=your-domain.com
+BASE_URL=https://your-domain.com
+BETTER_AUTH_SECRET=your-long-random-secret
+DISABLE_SIGNUP=false
+POSTGRES_USER=frog
+POSTGRES_PASSWORD=your-postgres-password
+POSTGRES_DB=analytics
+CLICKHOUSE_DB=analytics
+CLICKHOUSE_USER=default
+CLICKHOUSE_PASSWORD=your-clickhouse-password
+HOST_BACKEND_PORT=3001
+HOST_CLIENT_PORT=3002
+```
+
+- Replace `your-domain.com` and `BETTER_AUTH_SECRET` with your values.
+- Use strong, unique values for `POSTGRES_PASSWORD`, `CLICKHOUSE_PASSWORD`, and `BETTER_AUTH_SECRET` in production.
+
+Optional: set `MAPBOX_TOKEN` if you use map visualizations; leave empty otherwise.
+
+## 4. Optional: use Caddy (built-in reverse proxy)
+
+The repo includes a Caddy service behind the `with-webserver` profile. To run it inside this Compose stack:
+
+1. In **Advanced**, find the **Command** (or equivalent) section where the Compose command is built.
+2. Append the profile so Caddy is started, for example:  
+   `--profile with-webserver`  
+   (Exact UI label may vary; the goal is to pass this profile to `docker compose up`.)
+
+If you prefer not to use Caddy in the stack, you can expose only the backend and client ports and put Dokploy (or another reverse proxy) in front and add SSL there. In that case, don’t enable the `with-webserver` profile.
+
+## 5. Deploy
+
+1. Save the Docker Compose service.
+2. Click **Deploy**. Dokploy will clone the repo and run `docker compose` (build + up). The first build can take several minutes (Node, Next.js, backend).
+3. Check **Logs** per service (postgres, clickhouse, backend, client, and caddy if enabled) to confirm they start without errors.
+
+## 6. Access Rybbit
+
+- If you didn’t enable Caddy: use the host and ports you mapped for the client (e.g. `http://your-server:3002`) and ensure `BASE_URL` matches how you reach the backend (e.g. `http://your-server:3001` or your domain).
+- If you enabled Caddy: set `DOMAIN_NAME` (and point DNS to this server), then use `https://your-domain.com`. Caddy will serve the app and obtain TLS.
+
+## 7. Auto-deploy on push
+
+- Auto-deploy is **on by default** for the branch you selected (e.g. `master`).
+- Each push to that branch will trigger a new clone and deploy. You can turn this off or change the branch in the service’s **General** settings.
+- For webhook-based triggers, use the **Deployments** tab to copy the **Webhook URL** and add it in GitHub (Settings → Webhooks) if you want to trigger deploys from events other than the built-in GitHub App.
+
+## Troubleshooting
+
+- **Build fails**: Ensure the Compose path is `docker-compose.yml` and the repo root contains `server/`, `client/`, and `shared/`. Check build logs for the backend and client services.
+- **Backend/client can’t reach Postgres/ClickHouse**: Use the service names `postgres` and `clickhouse` (and ports 5432 / 8123) as in the default Compose file; don’t change hostnames unless you adjust the Compose and env vars to match.
+- **Env vars not applied**: All variables must be set in Dokploy’s **Environment** tab; they are written to `.env` in the Compose directory. Restart or redeploy after changing them.
+
+For more on Dokploy: [GitHub integration](https://docs.dokploy.com/docs/core/github), [Docker Compose](https://docs.dokploy.com/docs/core/docker-compose), [Auto Deploy](https://docs.dokploy.com/docs/core/auto-deploy).
