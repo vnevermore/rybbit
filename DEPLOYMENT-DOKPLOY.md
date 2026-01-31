@@ -26,4 +26,12 @@ Quick reference for deploying this repo on [Dokploy](https://dokploy.com) with G
 
 Auto-deploy on push is on by default for the selected branch. Webhook URL is in **Deployments** if you need it.
 
-**Troubleshooting:** If you see "endpoint not found" or gateway errors, the compose uses only the internal `rybbit` network (no external dokploy-network). If the backend still can't resolve `postgres`/`clickhouse` (ENOTFOUND), try disabling **Isolated Deployments** for this Docker Compose service in Dokploy (General or Advanced) so all services share the same network.
+**Troubleshooting**
+
+- **ENOTFOUND postgres / clickhouse**: The backend can't resolve the database hostnames. Try in order:
+  1. **Redeploy** – the compose now uses Docker’s default project network (no custom network).
+  2. **Turn off Isolated Deployments** for this compose in Dokploy (General or Advanced) so all services share one network.
+  3. **Set hostnames by hand** – In Dokploy, open your compose service and check the **containers/services** list. Note the exact names for the postgres and clickhouse containers (e.g. `analytics-app-fnvgd1-postgres-1`). In **Environment**, set:
+     - `POSTGRES_HOST=<postgres-container-name>` (no port)
+     - `CLICKHOUSE_HOST=http://<clickhouse-container-name>:8123`
+     Redeploy so the backend uses these hostnames.
