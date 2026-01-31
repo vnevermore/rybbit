@@ -6,7 +6,6 @@ services:
     restart: unless-stopped
     networks:
       - rybbit
-      - dokploy-network
     ports:
       - "80:80"
       - "443:443"
@@ -28,7 +27,6 @@ services:
     image: clickhouse/clickhouse-server:25.4.2
     networks:
       - rybbit
-      - dokploy-network
     volumes:
       - clickhouse-data:/var/lib/clickhouse
     configs:
@@ -59,7 +57,6 @@ services:
     container_name: postgres
     networks:
       - rybbit
-      - dokploy-network
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-frog}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-frog}
@@ -81,7 +78,6 @@ services:
     container_name: backend
     networks:
       - rybbit
-      - dokploy-network
     build:
       context: .
       dockerfile: server/Dockerfile
@@ -120,7 +116,6 @@ services:
     container_name: client
     networks:
       - rybbit
-      - dokploy-network
     build:
       context: .
       dockerfile: client/Dockerfile
@@ -140,9 +135,6 @@ services:
 networks:
   rybbit:
     driver: bridge
-  # Required on Dokploy so all services can resolve each other (postgres, clickhouse, etc.)
-  dokploy-network:
-    external: true
 
 volumes:
   clickhouse-data:
