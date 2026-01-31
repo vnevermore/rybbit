@@ -73,6 +73,9 @@ services:
     build:
       context: .
       dockerfile: server/Dockerfile
+    # So backend can reach postgres/clickhouse via host when Dokploy isolates networks
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "${HOST_BACKEND_PORT:-3001:3001}"
     environment:

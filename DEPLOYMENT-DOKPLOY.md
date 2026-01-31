@@ -29,9 +29,10 @@ Auto-deploy on push is on by default for the selected branch. Webhook URL is in 
 **Troubleshooting**
 
 - **ENOTFOUND postgres / clickhouse**: The backend can't resolve the database hostnames. Try in order:
-  1. **Redeploy** – the compose now uses Docker’s default project network (no custom network).
-  2. **Turn off Isolated Deployments** for this compose in Dokploy (General or Advanced) so all services share one network.
-  3. **Set hostnames by hand** – In Dokploy, open your compose service and check the **containers/services** list. Note the exact names for the postgres and clickhouse containers (e.g. `analytics-app-fnvgd1-postgres-1`). In **Environment**, set:
-     - `POSTGRES_HOST=<postgres-container-name>` (no port)
-     - `CLICKHOUSE_HOST=http://<clickhouse-container-name>:8123`
-     Redeploy so the backend uses these hostnames.
+  1. **Turn off Isolated Deployments** for this compose in Dokploy (General or Advanced) so all services share one network, then redeploy.
+  2. **Use the host’s published ports** – When containers can’t resolve each other, the backend can reach Postgres and ClickHouse via the Docker host. The compose file adds `host.docker.internal` for the backend. In **Environment**, set:
+     ```
+     POSTGRES_HOST=host.docker.internal
+     CLICKHOUSE_HOST=http://host.docker.internal:8123
+     ```
+     Save and redeploy. Postgres (5432) and ClickHouse (8123) are published to the host, so the backend will reach them via the host.
